@@ -34,13 +34,59 @@ const (
 	TYPE
 	STRING
 	FLOAT
-	MAP
 	BOOLEAN
 	INT
 	ID
 	PACKAGE
 	
 )
+
+func TokenToString(tok Token) string{
+	switch tok{
+	case ILLEGAL:
+		return "ILLEGAL"
+	case EOF:
+		return "EOF"
+	case WS:
+		return "WS"
+	case IDENT:
+		return "IDENT"
+	case ASTERISK:
+		return "ASTERISK"
+	case COMMA:
+		return "COMMA"
+	case EXCLAMATION:
+		return "EXCLAMATION"
+	case SQBRACKETOPEN:
+		return "SQBRACKETOPEN"
+	case SQBRACKETCLOSE:
+		return "SQBRACKETCLOSE"
+	case BRACKETOPEN:
+		return "BRACKETOPEN"
+	case BRACKETCLOSE:
+		return "BRACKETCLOSE"
+	case COLON:
+		return "COLON"
+	case EQUAL:
+		return "EQUAL"
+	case TYPE:
+		return "TYPE"
+	case STRING:
+		return "STRING"
+	case FLOAT:
+		return "FLOAT"
+	case BOOLEAN:
+		return "BOOLEAN"
+	case INT:
+		return "INT"
+	case ID:
+		return "ID"
+	case PACKAGE:
+		return "PACKAGE"
+	default:
+		return "Token not found in function TokenToString"
+	}
+}
 
 func isWhitespace(ch rune) bool {
 	return ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r'
@@ -67,7 +113,7 @@ func NewScanner(r io.Reader) *Scanner {
 
 // read reads the next rune from the bufferred reader.
 // Returns the rune(0) if an error occurs (or io.EOF is returned).
-func (s *Scanner) read() rune { // reads next rune feels extra
+func (s *Scanner) read() rune { 
 	ch, _, err := s.r.ReadRune()
 	if err != nil {
 		return eof
@@ -169,8 +215,6 @@ func (s *Scanner) scanIdent() (tok Token, lit string) {
 		return STRING, buf.String()
 	case "FLOAT":
 		return FLOAT, buf.String()
-	case "MAP":
-		return MAP, buf.String()
 	case "BOOLEAN":
 		return BOOLEAN, buf.String()
 	case "INT":

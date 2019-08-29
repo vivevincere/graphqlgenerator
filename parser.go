@@ -7,17 +7,16 @@ import (
 
 type ModelVar struct {
 	Name     string
-	Var      []Token
+	Tok      Token
 	Arg      []GqlArg
 	Lit      string
 	Required bool
 	List     bool
-	Map      bool
 }
 
 type GqlArg struct {
 	Name     string
-	Type     Token
+	Tok      Token
 	Lit      string
 	Default  string
 	Required bool
@@ -37,13 +36,13 @@ type Parser struct {
 	}
 }
 
-// NewParser returns a new instance of Parser.
+// NewParser returns a new instance of Parser.	
 func NewParser(r io.Reader) *Parser {
 	return &Parser{s: NewScanner(r)}
 }
 
 func TokenCheck(token Token) bool {
-	if token == STRING || token == FLOAT || token == MAP || token == BOOLEAN || token == INT || token == ID || token == IDENT {
+	if token == STRING || token == FLOAT  || token == BOOLEAN || token == INT || token == ID || token == IDENT {
 		return true
 	}
 	return false
@@ -91,7 +90,7 @@ func (p *Parser) parseArg() (*GqlArg, error) {
 	}
 	tok1, lit1 = p.scanIgnoreWhitespace()
 	if TokenCheck(tok1) == true {
-		thisArg.Type = tok1
+		thisArg.Tok = tok1
 		thisArg.Lit = lit1
 	} else {
 		return nil, fmt.Errorf("found %q, expected Type err 8", lit1)
@@ -100,7 +99,7 @@ func (p *Parser) parseArg() (*GqlArg, error) {
 	if tok1 == EQUAL {
 		tok1, lit1 = p.scanIgnoreWhitespace()
 		if tok1 != IDENT {
-			return nil, fmt.Errorf("found %s, expected Type err 9", tok1)
+			return nil, fmt.Errorf("found %s, expected Type err 9", lit1)
 		}
 		thisArg.Default = lit1
 
@@ -155,36 +154,15 @@ func (p *Parser) parseInner() (*ModelVar, error) {
 		if tok != IDENT {
 			return nil, fmt.Errorf("found %q, expected Identifier err17", lit)
 		}
-		curvar.Var = append(curvar.Var, tok)
+		curvar.Tok = tok
 		curvar.Lit = lit
 		tok, lit = p.scanIgnoreWhitespace()
 		if tok != SQBRACKETCLOSE {
 			return nil, fmt.Errorf("found %q, expected ] err8", lit)
 		}
 		curvar.List = true
-	} else if tok1 == MAP {
-		curvar.Var = append(curvar.Var, tok1)
-		curvar.Map = true
-		tok, lit = p.scanIgnoreWhitespace()
-		if tok != SQBRACKETOPEN {
-			return nil, fmt.Errorf("found %q, expected [ err9", lit)
-		}
-		tok, lit = p.scanIgnoreWhitespace()
-		if tok != IDENT {
-			return nil, fmt.Errorf("found %q, expected Identifier err10", lit)
-		}
-		curvar.Var = append(curvar.Var, tok)
-		tok, lit = p.scanIgnoreWhitespace()
-		if tok != SQBRACKETCLOSE {
-			return nil, fmt.Errorf("found %q, expected ] err11", lit)
-		}
-		tok, lit = p.scanIgnoreWhitespace()
-		if tok != IDENT {
-			return nil, fmt.Errorf("found %q, expected Identifier err12", lit)
-		}
-		curvar.Var = append(curvar.Var, tok)
-	} else if TokenCheck(tok1) == true {
-		curvar.Var = append(curvar.Var, tok1)
+	}else if TokenCheck(tok1) == true {
+		curvar.Tok = tok1
 		curvar.Lit = lit1
 	} else {
 		return nil, fmt.Errorf("found %q, expected member variable declaration err13", lit1)
@@ -202,9 +180,6 @@ func (p *Parser) Parse() (*GqlModel, error) {
 	gqlmodel := &GqlModel{}
 
 	tok, lit := p.scanIgnoreWhitespace()
-	if tok == SCHEMA{
-
-	}
 	if tok != TYPE {
 		if lit == "" {
 			return nil, fmt.Errorf("EOF reached")

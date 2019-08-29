@@ -2,8 +2,8 @@ package graphqlgenerator
 
 import (
 	"fmt"
-	"gateway/gqlmanual/hand"
 	"io/ioutil"
+	"io"
 	"log"
 	"os"
 	"strings"
@@ -15,8 +15,6 @@ func tokenType(token Token) string {
 		return "graphql.String"
 	case FLOAT:
 		return "graphql.Float"
-	case MAP:
-		return "graphql.String"
 	case INT:
 		return "graphql.Int"
 	case BOOLEAN:
@@ -92,37 +90,32 @@ func gqlArgString(name string, argType string, required bool, argDefault string)
 
 }
 
-func Generate(schemafile string, outputfile string) {
-	data, err := ioutil.ReadFile(schemafile)
-	if err != nil {
-		log.Fatal(err)
-	}
-	g := strings.NewReader(string(data))
-	p := NewParser(g)
+
+
+func GenerateToString(input io.Reader) (string, error){
+	p:= NewParser(input)
 	packageName, err := p.ParsePackage()
 	if err != nil{
-		fmt.Println(err)
-		return
+		return "", err
 	}
 
 	obj, err := p.Parse()
 	if err != nil {
-		fmt.Println(err)
-		return
+		return "", err
 	}
 	toadd := fmt.Sprintf("package %s \n \n", packageName)
 	for obj != nil {
 		curadd := ""
 		for _, element := range obj.Variables {
 
-			tType := tokenType(element.Var[0])
+			tType := tokenType(element.Tok)
 			if tType == "lit" {
 				tType = element.Lit
 			}
 			argString := ""
 			argCheck := false
 			for _, arg := range element.Arg {
-				argType := tokenType(arg.Type)
+				argType := tokenType(arg.Tok)
 				if argType == "lit" {
 					argType = arg.Lit
 				}
@@ -142,19 +135,34 @@ func Generate(schemafile string, outputfile string) {
 			fmt.Println(err)
 		}
 	}
-	f, err := os.Create(outputfile)
+	return toadd, nil
+
+}
+
+
+func GenerateToFile(schemafile string, outputfile string) {
+	data, err := ioutil.ReadFile(schemafile)
+	if err != nil {
+		log.Fatal(err)
+	}
+	g := strings.NewReader(string(data))
+	toadd, err := GenerateToString(g)
+	if err != nil{
+		fmt.Println(err)
+	}
+	file, err := os.Create(outputfile)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	l, err := f.WriteString(toadd)
+	numbytes, err := file.WriteString(toadd)
 	if err != nil {
 		fmt.Println(err)
-		f.Close()
+		file.Close()
 		return
 	}
-	fmt.Println(l, "bytes written successfully")
-	err = f.Close()
+	fmt.Println(numbytes, "bytes written successfully")
+	err = file.Close()
 	if err != nil {
 		fmt.Println(err)
 		return
