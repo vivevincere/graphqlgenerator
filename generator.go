@@ -2,8 +2,8 @@ package graphqlgenerator
 
 import (
 	"fmt"
-	"io/ioutil"
 	"io"
+	"io/ioutil"
 	"log"
 	"os"
 	"strings"
@@ -40,7 +40,7 @@ func gqlObjString(elements string, name string) string {
 
 func gqlListString(name string, typename string, arg string, argCheck bool, required bool) string {
 	if required == true {
-		typename = fmt.Sprintf(`graphql.NewNonNull(%s)`,typename)
+		typename = fmt.Sprintf(`graphql.NewNonNull(%s)`, typename)
 	}
 	if argCheck == true {
 		return fmt.Sprintf(`"%s": &graphql.Field{
@@ -90,12 +90,10 @@ func gqlArgString(name string, argType string, required bool, argDefault string)
 
 }
 
-
-
-func GenerateToString(input io.Reader) (string, error){
-	p:= NewParser(input)
+func GenerateToString(input io.Reader) (string, error) {
+	p := NewParser(input)
 	packageName, err := p.ParsePackage()
-	if err != nil{
+	if err != nil {
 		return "", err
 	}
 
@@ -124,7 +122,7 @@ func GenerateToString(input io.Reader) (string, error){
 			}
 
 			if element.List == true {
-				curadd += gqlListString(element.Name, tType, argString, argCheck,element.Required )
+				curadd += gqlListString(element.Name, tType, argString, argCheck, element.Required)
 			} else {
 				curadd += gqlElementString(element.Name, tType, argString, argCheck, element.Required)
 			}
@@ -139,7 +137,6 @@ func GenerateToString(input io.Reader) (string, error){
 
 }
 
-
 func GenerateToFile(schemafile string, outputfile string) {
 	data, err := ioutil.ReadFile(schemafile)
 	if err != nil {
@@ -147,7 +144,7 @@ func GenerateToFile(schemafile string, outputfile string) {
 	}
 	g := strings.NewReader(string(data))
 	toadd, err := GenerateToString(g)
-	if err != nil{
+	if err != nil {
 		fmt.Println(err)
 	}
 	file, err := os.Create(outputfile)

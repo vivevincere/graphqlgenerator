@@ -36,13 +36,13 @@ type Parser struct {
 	}
 }
 
-// NewParser returns a new instance of Parser.	
+// NewParser returns a new instance of Parser.
 func NewParser(r io.Reader) *Parser {
 	return &Parser{s: NewScanner(r)}
 }
 
 func TokenCheck(token Token) bool {
-	if token == STRING || token == FLOAT  || token == BOOLEAN || token == INT || token == ID || token == IDENT {
+	if token == STRING || token == FLOAT || token == BOOLEAN || token == INT || token == ID || token == IDENT {
 		return true
 	}
 	return false
@@ -161,7 +161,7 @@ func (p *Parser) parseInner() (*ModelVar, error) {
 			return nil, fmt.Errorf("found %q, expected ] err8", lit)
 		}
 		curvar.List = true
-	}else if TokenCheck(tok1) == true {
+	} else if TokenCheck(tok1) == true {
 		curvar.Tok = tok1
 		curvar.Lit = lit1
 	} else {
@@ -183,8 +183,8 @@ func (p *Parser) Parse() (*GqlModel, error) {
 	if tok != TYPE {
 		if lit == "" {
 			return nil, fmt.Errorf("EOF reached")
-		}else {
-		return nil, fmt.Errorf("found %q, expected Type or schema, err1", lit)
+		} else {
+			return nil, fmt.Errorf("found %q, expected Type or schema, err1", lit)
 		}
 	}
 
@@ -216,13 +216,13 @@ func (p *Parser) Parse() (*GqlModel, error) {
 	}
 	return gqlmodel, nil
 }
-func (p *Parser) ParsePackage()	(string, error){
-	tok, lit :=  p.scanIgnoreWhitespace()
-	if tok != PACKAGE{
+func (p *Parser) ParsePackage() (string, error) {
+	tok, lit := p.scanIgnoreWhitespace()
+	if tok != PACKAGE {
 		return "", fmt.Errorf("found %q, expected package err 18", lit)
 	}
-	tok ,lit = p.scanIgnoreWhitespace()
-	if lit == ""{
+	tok, lit = p.scanIgnoreWhitespace()
+	if lit == "" {
 		return "", fmt.Errorf("missing package name")
 	}
 	return lit, nil

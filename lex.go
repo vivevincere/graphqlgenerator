@@ -38,11 +38,10 @@ const (
 	INT
 	ID
 	PACKAGE
-	
 )
 
-func TokenToString(tok Token) string{
-	switch tok{
+func TokenToString(tok Token) string {
+	switch tok {
 	case ILLEGAL:
 		return "ILLEGAL"
 	case EOF:
@@ -113,7 +112,7 @@ func NewScanner(r io.Reader) *Scanner {
 
 // read reads the next rune from the bufferred reader.
 // Returns the rune(0) if an error occurs (or io.EOF is returned).
-func (s *Scanner) read() rune { 
+func (s *Scanner) read() rune {
 	ch, _, err := s.r.ReadRune()
 	if err != nil {
 		return eof
@@ -231,4 +230,3 @@ func (s *Scanner) scanIdent() (tok Token, lit string) {
 }
 
 func (s *Scanner) unread() { _ = s.r.UnreadRune() } // puts rune back on reader
-
